@@ -3,8 +3,11 @@ package ru.javawebinar.topjava.repository.inmemory;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,10 +22,11 @@ public class InMemoryMealRepository implements MealRepository {
 
     {
         MealsUtil.meals.forEach(meal -> save(meal, 1));
+        MealsUtil.meals.forEach(meal -> save(meal, 2));
     }
 
     @Override
-    public Meal save(Meal meal, Integer userId) {
+    public Meal save(Meal meal, int userId) {
         if (userIsExist(userId)) {
             repository.putIfAbsent(userId, new HashMap<>());
             Map<Integer, Meal> userMeals = repository.get(userId);
@@ -38,17 +42,17 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     @Override
-    public boolean delete(int id, Integer userId) {
+    public boolean delete(int id, int userId) {
         return userIsExist(userId) && repository.get(userId).remove(id) != null;
     }
 
     @Override
-    public Meal get(int id, Integer userId) {
+    public Meal get(int id, int userId) {
         return userIsExist(userId) ? repository.get(userId).get(id) : null;
     }
 
     @Override
-    public Collection<Meal> getAll(Integer userId) {
+    public Collection<Meal> getAll(int userId) {
 
         Collection<Meal> meals = userRepository.get(userId) != null
                 ? repository.get(userId).values()
@@ -56,7 +60,16 @@ public class InMemoryMealRepository implements MealRepository {
         return meals.stream().sorted(MEAL_DATE_TIME_COMPARATOR).collect(Collectors.toList());
     }
 
-    private boolean userIsExist(Integer userId) {
+    @Override
+    public Collection<Meal> getBetween(int userId, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+        List<Meal> result = getAll(userId).stream()
+                .filter(meal -> DateTimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime))
+                .filter(meal -> DateTimeUtil.isBetweenHalfOpen(meal.getDate(), startDate, endDate))
+                .collect(Collectors.toList());
+        return result.isEmpty() ? Collections.EMPTY_LIST : result;
+    }
+
+    private boolean userIsExist(int userId) {
         return userRepository.get(userId) != null;
     }
 }
