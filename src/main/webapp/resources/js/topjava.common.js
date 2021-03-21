@@ -26,7 +26,7 @@ function deleteRow(id) {
         url: ctx.ajaxUrl + id,
         type: "DELETE"
     }).done(function () {
-        updateTable();
+        filter();
         successNoty("Deleted");
     });
 }
@@ -44,8 +44,19 @@ function save() {
         data: form.serialize()
     }).done(function () {
         $("#editRow").modal("hide");
-        updateTable();
+        filter();
         successNoty("Saved");
+    });
+}
+
+function filter() {
+    form = $('#filter');
+    $.ajax({
+        type: "GET",
+        url: ctx.ajaxUrl + "filter",
+        data: form.serialize()
+    }).done(function () {
+        updateTable();
     });
 }
 

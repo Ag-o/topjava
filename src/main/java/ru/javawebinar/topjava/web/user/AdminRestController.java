@@ -56,4 +56,18 @@ public class AdminRestController extends AbstractUserController {
     public User getByMail(@RequestParam String email) {
         return super.getByMail(email);
     }
+
+    @Override
+    @PostMapping(value = "/enableDisable/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void enableDisable(@PathVariable int id, @RequestParam(required = false) boolean enabled) {
+        super.enableDisable(id, enabled);
+    }
+
+    @Override
+    @GetMapping("/getWithMeals/{id}")
+    public User getWithMeals(@PathVariable int id) {
+        return super.getWithMeals(id);
+    }
+
 }

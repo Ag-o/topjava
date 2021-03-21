@@ -12,6 +12,7 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -84,5 +85,24 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(USER_MATCHER.contentJson(admin, user));
+    }
+
+    @Test
+    void enableDisable() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL + "enableDisable/" + USER_ID)
+                .param("enabled", "false"))
+                .andExpect(status().isNoContent())
+                .andDo(print());
+        assertFalse(userService.get(USER_ID).isEnabled());
+    }
+
+    @Test
+    void getWithMeals() throws Exception {
+        User withMeals = userService.getWithMeals(ADMIN_ID);
+        perform(MockMvcRequestBuilders.get(REST_URL + "getWithMeals/" + ADMIN_ID))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(USER_MATCHER_WITH_MEALS.contentJson(withMeals));
     }
 }
