@@ -28,7 +28,7 @@ $(function () {
                     "data": "dateTime",
                     "render": function (data, type, row) {
                         if (type === "display") {
-                            return data.replace('T', ' ');
+                            return data.replace('T', ' ').substr(0, 16);
                         }
                         return data;
                     }
@@ -65,4 +65,52 @@ $(function () {
         }
     };
     makeEditable();
+
+    let startDate = $("#startDate");
+    let endDate = $("#endDate");
+    startDate.datetimepicker({
+        format: "Y-m-d",
+        formatDate: "Y-m-d",
+        timepicker: false,
+        onShow: function (ct) {
+            this.setOptions({
+                maxDate: endDate.val() ? endDate.val() : false
+            })
+        },
+    });
+    endDate.datetimepicker({
+        format: "Y-m-d",
+        formatDate: "Y-m-d",
+        timepicker: false,
+        onShow: function (ct) {
+            this.setOptions({
+                minDate: startDate.val() ? startDate.val() : false
+            })
+        },
+    });
+    let startTime = $("#startTime");
+    let endTime = $("#endTime");
+    startTime.datetimepicker({
+        format: "H:i",
+        datepicker: false,
+        onShow: function (ct) {
+            this.setOptions({
+                maxTime: endTime.val() ? endTime.val() : false
+            })
+        },
+    });
+    endTime.datetimepicker({
+        format: "H:i",
+        datepicker: false,
+        onShow: function (ct) {
+            this.setOptions({
+                minTime: startTime.val() ? startTime.val() : false
+            })
+        },
+    });
+    $("#dateTime").datetimepicker({
+        format: "Y-m-d H:i",
+    });
 });
+
+
