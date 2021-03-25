@@ -25,6 +25,7 @@ function updateRow(id) {
         });
         $('#editRow').modal();
     });
+    save();
 }
 
 function deleteRow(id) {
@@ -51,7 +52,7 @@ function save() {
     }).done(function () {
         $("#editRow").modal("hide");
         ctx.updateTable();
-        successNoty("common.saved");
+        successNoty(data.id == null ? "common.saved" : "common.update");
     });
 }
 
