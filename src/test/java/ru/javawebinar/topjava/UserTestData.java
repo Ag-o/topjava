@@ -7,6 +7,7 @@ import ru.javawebinar.topjava.web.json.JsonUtil;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -30,6 +31,11 @@ public class UserTestData {
 
     public static final User user = new User(USER_ID, "User", "user@yandex.ru", "password", 2005, Role.USER);
     public static final User admin = new User(ADMIN_ID, "Admin", "admin@gmail.com", "admin", 1900, Role.ADMIN, Role.USER);
+    public static final User USER_BLANK_NAME = new User(null, "  ", "mail@yandex.ru", "password", 2000, Role.USER);
+    public static final User USER_BLANK_EMAIL = new User(null, "User", "  ", "password", 2000, Role.USER);
+    public static final User USER_BLANK_PASSWORD = new User(null, "User", "mail@yandex.ru", "  ", 2000, Role.USER);
+    public static final User USER_NOT_IN_CALORIES_RANGE_LOW = new User(null, "User", "mail@yandex.ru", "password", 9, true, new Date(), Set.of());
+    public static final User USER_NOT_IN_CALORIES_RANGE_HIGH = new User(null, "User", "mail@yandex.ru", "password", 10001, true, new Date(), Set.of());
 
     static {
         user.setMeals(meals);

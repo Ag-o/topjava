@@ -3,16 +3,13 @@ package ru.javawebinar.topjava.service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.util.Assert;
 import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.validation.ConstraintViolationException;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static ru.javawebinar.topjava.UserTestData.*;
@@ -81,11 +78,11 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Test
     void createWithException() {
-        validateRootCause(() -> service.create(new User(null, "  ", "mail@yandex.ru", "password",  2000, Role.USER)), ConstraintViolationException.class);
-        validateRootCause(() -> service.create(new User(null, "User", "  ", "password",  2000, Role.USER)), ConstraintViolationException.class);
-        validateRootCause(() -> service.create(new User(null, "User", "mail@yandex.ru", "  ",  2000, Role.USER)), ConstraintViolationException.class);
-        validateRootCause(() -> service.create(new User(null, "User", "mail@yandex.ru", "password", 9, true, new Date(), Set.of())), ConstraintViolationException.class);
-        validateRootCause(() -> service.create(new User(null, "User", "mail@yandex.ru", "password", 10001, true, new Date(), Set.of())), ConstraintViolationException.class);
+        validateRootCause(() -> service.create(USER_BLANK_NAME), ConstraintViolationException.class);
+        validateRootCause(() -> service.create(USER_BLANK_EMAIL), ConstraintViolationException.class);
+        validateRootCause(() -> service.create(USER_BLANK_PASSWORD), ConstraintViolationException.class);
+        validateRootCause(() -> service.create(USER_NOT_IN_CALORIES_RANGE_LOW), ConstraintViolationException.class);
+        validateRootCause(() -> service.create(USER_NOT_IN_CALORIES_RANGE_HIGH), ConstraintViolationException.class);
     }
 
     @Test

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.test.annotation.Rollback;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
@@ -11,7 +12,6 @@ import javax.validation.ConstraintViolationException;
 import java.time.LocalDate;
 import java.time.Month;
 
-import static java.time.LocalDateTime.of;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
@@ -103,10 +103,11 @@ public abstract class AbstractMealServiceTest extends AbstractServiceTest {
     }
 
     @Test
+    @Rollback(value = false)
     void createWithException() {
-        validateRootCause(() -> service.create(new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "  ", 300), USER_ID), ConstraintViolationException.class);
-        validateRootCause(() -> service.create(new Meal(null, null, "Description", 300), USER_ID), ConstraintViolationException.class);
-        validateRootCause(() -> service.create(new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Description", 9), USER_ID), ConstraintViolationException.class);
-        validateRootCause(() -> service.create(new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Description", 5001), USER_ID), ConstraintViolationException.class);
+        validateRootCause(() -> service.create(MEAL_BLANK_DESCRIPTION, USER_ID), ConstraintViolationException.class);
+        validateRootCause(() -> service.create(MEAL_NULL_DATE_TIME, USER_ID), ConstraintViolationException.class);
+        validateRootCause(() -> service.create(MEAL_IN_NOT_RANGE_CALORIES_LOW, USER_ID), ConstraintViolationException.class);
+        validateRootCause(() -> service.create(MEAL_IN_NOT_RANGE_CALORIES_HIGH, USER_ID), ConstraintViolationException.class);
     }
 }

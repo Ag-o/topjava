@@ -3,9 +3,12 @@ package ru.javawebinar.topjava.web.meal;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
@@ -95,7 +98,59 @@ class MealRestControllerTest extends AbstractControllerTest {
         MEAL_MATCHER.assertMatch(created, newMeal);
         MEAL_MATCHER.assertMatch(mealService.get(newId, USER_ID), newMeal);
     }
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void createWithLocationDuplicateDateTime() throws Exception {
+        Meal newMeal = new Meal(getNew());
+        newMeal.setDateTime(meal1.getDateTime());
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(newMeal))
+                .with(userHttpBasic(user)))
+                .andExpect(status().isConflict())
+                .andDo(print());
+        assertThrows(DataIntegrityViolationException.class, () -> mealService.create(newMeal,USER_ID));
+    }
 
+    @Test
+    void createWithLocationNotValidDescription() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(MEAL_BLANK_DESCRIPTION))
+                .with(userHttpBasic(user)))
+                .andExpect(status().isUnprocessableEntity())
+                .andDo(print());
+    }@Test
+    void createWithLocationNotValidCalories() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(MEAL_NULL_CALORIES))
+                .with(userHttpBasic(user)))
+                .andExpect(status().isUnprocessableEntity())
+                .andDo(print());
+
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(MEAL_IN_NOT_RANGE_CALORIES_LOW))
+                .with(userHttpBasic(user)))
+                .andExpect(status().isUnprocessableEntity())
+                .andDo(print());
+
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(MEAL_IN_NOT_RANGE_CALORIES_HIGH))
+                .with(userHttpBasic(user)))
+                .andExpect(status().isUnprocessableEntity())
+                .andDo(print());
+    }@Test
+    void createWithLocationNotValidDateTime() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(MEAL_NULL_DATE_TIME))
+                .with(userHttpBasic(user)))
+                .andExpect(status().isUnprocessableEntity())
+                .andDo(print());
+    }
     @Test
     void getAll() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL)

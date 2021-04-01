@@ -2,9 +2,12 @@ package ru.javawebinar.topjava.web.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
@@ -112,6 +115,55 @@ class AdminRestControllerTest extends AbstractControllerTest {
         newUser.setId(newId);
         USER_MATCHER.assertMatch(created, newUser);
         USER_MATCHER.assertMatch(userService.get(newId), newUser);
+    }
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void createWithLocationDuplicateEmail() throws Exception {
+        User newUser = new User(UserTestData.getNew());
+        newUser.setEmail(user.getEmail());
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(UserTestData.jsonWithPassword(newUser, "newPass")))
+                .andExpect(status().isConflict())
+                .andDo(print());
+        assertThrows(DataIntegrityViolationException.class, () -> userService.create(newUser));
+    }
+    @Test
+    void createWithLocationNotValidName() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(UserTestData.jsonWithPassword(USER_BLANK_NAME, "password")))
+                .andExpect(status().isUnprocessableEntity());
+    } @Test
+    void createWithLocationNotValidEmail() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(UserTestData.jsonWithPassword(USER_BLANK_EMAIL, "password")))
+                .andExpect(status().isUnprocessableEntity());
+    } @Test
+    void createWithLocationNotValidPassword() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(UserTestData.jsonWithPassword(USER_BLANK_PASSWORD, "  ")))
+                .andExpect(status().isUnprocessableEntity());
+    }
+    @Test
+    void createWithLocationNotValidCalories() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(UserTestData.jsonWithPassword(USER_NOT_IN_CALORIES_RANGE_LOW, "password")))
+                .andExpect(status().isUnprocessableEntity());
+
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(UserTestData.jsonWithPassword(USER_NOT_IN_CALORIES_RANGE_HIGH, "password")))
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test

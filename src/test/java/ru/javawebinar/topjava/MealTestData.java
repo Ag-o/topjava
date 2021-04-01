@@ -27,6 +27,11 @@ public class MealTestData {
     public static final Meal meal7 = new Meal(MEAL1_ID + 6, of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 510);
     public static final Meal adminMeal1 = new Meal(ADMIN_MEAL_ID, of(2020, Month.JANUARY, 31, 14, 0), "Админ ланч", 510);
     public static final Meal adminMeal2 = new Meal(ADMIN_MEAL_ID + 1, of(2020, Month.JANUARY, 31, 21, 0), "Админ ужин", 1500);
+    public static final Meal MEAL_BLANK_DESCRIPTION = new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "  ", 300);
+    public static final Meal MEAL_NULL_DATE_TIME = new Meal(null, null, "Description", 300);
+    public static final Meal MEAL_IN_NOT_RANGE_CALORIES_LOW = new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Description", 9);
+    public static final Meal MEAL_IN_NOT_RANGE_CALORIES_HIGH = new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Description", 5001);
+    public static final Meal MEAL_NULL_CALORIES = new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Description", null);
 
     public static final List<Meal> meals = List.of(meal7, meal6, meal5, meal4, meal3, meal2, meal1);
 
