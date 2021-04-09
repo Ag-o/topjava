@@ -63,7 +63,7 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isCreated());
 
         User created = readFromJson(action, User.class);
-        int newId = created.getId();
+        int newId = created.id();
         newUser.setId(newId);
         USER_MATCHER.assertMatch(created, newUser);
         USER_MATCHER.assertMatch(userService.get(newId), newUser);
