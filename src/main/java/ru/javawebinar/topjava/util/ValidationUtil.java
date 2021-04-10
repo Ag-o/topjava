@@ -1,6 +1,8 @@
 package ru.javawebinar.topjava.util;
 
 import org.slf4j.Logger;
+import org.springframework.core.NestedExceptionUtils;
+import org.springframework.lang.NonNull;
 import ru.javawebinar.topjava.HasId;
 import ru.javawebinar.topjava.util.exception.ErrorType;
 import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
@@ -67,15 +69,11 @@ public class ValidationUtil {
         }
     }
 
-    //  http://stackoverflow.com/a/28565320/548473
-    public static Throwable getRootCause(Throwable t) {
-        Throwable result = t;
-        Throwable cause;
-
-        while (null != (cause = result.getCause()) && (result != cause)) {
-            result = cause;
-        }
-        return result;
+    //  https://stackoverflow.com/a/65442410/548473
+    @NonNull
+    public static Throwable getRootCause(@NonNull Throwable t) {
+        Throwable rootCause = NestedExceptionUtils.getRootCause(t);
+        return rootCause != null ? rootCause : t;
     }
 
     public static String getMessage(Throwable e) {
